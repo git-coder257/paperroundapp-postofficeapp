@@ -87,7 +87,6 @@ const Creataccount: React.FC = () => {
     const handlecreateaccount = async () => {
         // await axios.post(`https://dry-shore-19751.herokuapp.com/newpostofficeuser/${username}/${password}/${postofficename}`, {
 
-            
             // await axios.get(`https://api.myptv.com/geocoding/v1/locations/by-text?searchText=${address}&apiKey=ZjVmOTA2NmQ5YTZkNDk0NWEzNDQzNTIxOWY0MTdlODc6ZTA5YzNjY2QtN2FjOC00NTA5LWE2NjgtYjA1NGE4Nzg1NGY1`)
             //     .then((r) => {
         //         console.log(r.data)
