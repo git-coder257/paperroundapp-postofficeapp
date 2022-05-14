@@ -27,7 +27,7 @@ const handlegetorderingaccountsfromserver = async () => {
 }
 
 const handleallowaccount = async (userid: number) => {
-    let success = await (await axios.post(`https://dry-shore-19751.herokuapp.com/confirmdeliveraccount${userid}`)).data
+    let success = await (await axios.post(`https://dry-shore-19751.herokuapp.com/confirmdeliveraccount/${userid}`)).data
 
     return await success
 }
