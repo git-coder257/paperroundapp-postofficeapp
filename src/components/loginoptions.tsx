@@ -13,8 +13,8 @@ const Loginoptions: React.FC = () => {
     return <div>
         <button onClick={handlegotologin}>login</button><br/>
         <button onClick={handlegotocreateaccount}>create account</button><br/>
-        {localStorage.getItem("username") !== null && localStorage.getItem("username") !== 'null' && <button>go to previously loged in account</button>}
+        {localStorage.getItem("username") !== null && localStorage.getItem("username") !== 'null' && <button>go to previously logged in account</button>}
     </div>
 }
 
-export default Loginoptions
+export default Loginoptions;

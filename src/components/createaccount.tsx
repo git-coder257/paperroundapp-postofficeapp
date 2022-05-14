@@ -119,7 +119,7 @@ const Creataccount: React.FC = () => {
             districts: listofdistricts
         }
             
-        await axios.post(`http://localhost:3000/newpostofficeuser/${username}/${password}/${postofficename}`, requestBody)
+        await axios.post(`https://dry-shore-19751.herokuapp.com/newpostofficeuser/${username}/${password}/${postofficename}`, requestBody)
             .then((r) => {
                 console.log(r.data)
                 if (r.data.success){
