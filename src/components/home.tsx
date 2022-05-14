@@ -20,10 +20,19 @@ const handlegetnewdeliveraccountsfromserver = async () => {
 
 const handlegetorderingaccountsfromserver = async () => {
     let ordererusers = await (await axios.get(`https://dry-shore-19751.herokuapp.com/ordererusers/${localStorage.getItem("postofficename")}`)).data
-    
-    // if (ordererusers.success) return ordererusers.users
 
     return [{username: "orson"}, {username: "orson2"}, {username: "orson3"}]
+
+}
+
+const handleaddnewpaper = async (paperinfo: {papername: string, paperprice: number, days: any[]}) => {
+    console.log(paperinfo)
+
+    for (let i = 0; i < paperinfo.days.length; i++){
+        axios.post(`https://dry-shore-19751.herokuapp.com/${paperinfo.papername}/${paperinfo.days[i][2]}/${localStorage.getItem("postofficename")}`)
+    }
+
+    await axios.post(`https://dry-shore-19751.herokuapp.com/${localStorage.getItem("postofficename")}/${paperinfo.papername}/${paperinfo.paperprice}`)
 }
 
 const handleallowaccount = async (userid: number) => {
@@ -50,7 +59,20 @@ interface ordereruser {
     // houselocationlat: number
 }
 
-// enum
+const useGetDayStates: () => (any)[] = () => {
+    
+    let [monday, setmonday] = useState<boolean>(false)
+    let [tuesday, settuesday] = useState<boolean>(false)
+    let [wednesday, setwednesday] = useState<boolean>(false)
+    let [thursday, setthursday] = useState<boolean>(false)
+    let [friday, setfriday] = useState<boolean>(false)
+    let [saturday, setsaturday] = useState<boolean>(false)
+    let [sunday, setsunday] = useState<boolean>(false)
+ 
+    return [[monday, setmonday, "monday"], [tuesday, settuesday, "tuesday"], [wednesday, setwednesday, "wednesday"],
+            [thursday, setthursday, "thursday"], [friday, setfriday, "friday"], [saturday, setsaturday, "saturday"],
+            [sunday, setsunday, "sunday"]]
+}
 
 const Home: FC = () => {
 
@@ -59,48 +81,86 @@ const Home: FC = () => {
     let [orderingaccounts, setorderingaccounts] = useState<ordereruser[]>([])
     let [popup, setpopup] = useState(false)
     let [popupuser, setpopupuser] = useState<any>({})
+    let [stylesforparentcontainer, setstylesforparentcontainer] = useState<string>("")
+    let [shownewpaperdisplay, setshownewpaperdisplay] = useState<boolean>(false)
+    let [papername, setpapername] = useState("")
+    let [paperprice, setpaperprice] = useState<number>(1)
+    let daystates = useGetDayStates()
 
     useEffect(() => {
 
         (async function () {
+            
+            let deliveraccountsvar = await handlegetdeliveraccountsfromserver()
+            let newdeliveraccountsvar = await handlegetnewdeliveraccountsfromserver()
+            let orderingaccountsvar = await handlegetorderingaccountsfromserver()
+            
+            setdeliveraccounts(deliveraccountsvar)
 
-            console.log(await handlegetnewdeliveraccountsfromserver())
-            setnewdeliveraccounts(await handlegetnewdeliveraccountsfromserver())
+            setnewdeliveraccounts(newdeliveraccountsvar)
 
-            console.log(await handlegetdeliveraccountsfromserver())
-            setdeliveraccounts(await handlegetdeliveraccountsfromserver())
+            setorderingaccounts(orderingaccountsvar)
 
-            console.log(await handlegetorderingaccountsfromserver())
-            setorderingaccounts(await handlegetorderingaccountsfromserver())
+            if (deliveraccountsvar.length > 20 || newdeliveraccountsvar.length > 20 || orderingaccountsvar.length > 20) setstylesforparentcontainer("displayflexparentcontainer")
+            else if (deliveraccountsvar.length <= 20 && newdeliveraccountsvar.length <= 20 && orderingaccountsvar.length <= 20) {setstylesforparentcontainer("normalparentcontainer")}
         })()
     }, [])
     
+    const handleupdatedaystodeliver =  (state: boolean | Function, setstate: boolean | Function) => {
+        if (typeof setstate !== "boolean" && typeof state !== "function"){
+            setstate(!state)
+        }
+    }
 
     return <>
-        {!popup && <div className="parentcontainer">
-            <div className="deliveraccountsparentcontainer">
-                {deliveraccounts.map((deliveraccount: deliveraccount, index: number) => <div key={index} className="deliveraccountschildcontainer">
+        {!popup && <div className={stylesforparentcontainer}>
+            <div className="parentcontainerforaccountsinfo">
+                <div className="deliveraccountsparentcontainer">
+                    {deliveraccounts.map((deliveraccount: deliveraccount, index: number) => <div key={index} className="deliveraccountschildcontainer">
+                        <button onClick={() => {
+                            setpopupuser(deliveraccount)
+                            setpopup(true)
+                        }} className="deliveraccountsbtn">{deliveraccount.username}</button>
+                    </div>)}
+                </div>
+                <div className="newdeliveraccountsparentcontainer">
+                    {newdeliveraccounts.map((newdeliveraccount: deliveraccount, index: number) => <div key={index} className="newdeliveraccountschildcontainer">
                     <button onClick={() => {
-                        setpopupuser(deliveraccount)
+                        setpopupuser(newdeliveraccount)
                         setpopup(true)
-                    }} className="deliveraccountsbtn">{deliveraccount.username}</button>
-                </div>)}
+                    }} className="newdeliveraccounts">{newdeliveraccount.username}</button>
+                    </div>)}
+                </div>
+                <div className="orderingaccountsparentcontainer">
+                    {orderingaccounts.map((orderingaccount: ordereruser, index: number) => <div key={index} className="orderingaccountschildcontainer">
+                        <button onClick={() => {
+                            setpopupuser(orderingaccount)
+                            setpopup(true)
+                        }} className="orderingaccounts">{orderingaccount.username}</button>
+                    </div>)}
+                </div>
             </div>
-            <div className="newdeliveraccountsparentcontainer">
-                {newdeliveraccounts.map((newdeliveraccount: deliveraccount, index: number) => <div key={index} className="newdeliveraccountschildcontainer">
-                <button onClick={() => {
-                    setpopupuser(newdeliveraccount)
-                    setpopup(true)
-                }} className="newdeliveraccounts">{newdeliveraccount.username}</button>
-                </div>)}
-            </div>
-            <div className="orderingaccountsparentcontainer">
-                {orderingaccounts.map((orderingaccount: ordereruser, index: number) => <div key={index} className="orderingaccountschildcontainer">
+            <div>
+                {shownewpaperdisplay && <div>
+                    <input onChange={(e: {target: {value: string}}) => {
+                        setpapername(e.target.value)
+                    }} placeholder="paper name" type="text"/><br/>
+                    <input onChange={(e: {target: {value: string}}) => {
+                        setpaperprice(parseFloat(e.target.value))
+                    }} placeholder="price" type="text"/>
+                    {daystates.map((day: any, index: number) => <div key={index}>
+                        <input onChange={() => handleupdatedaystodeliver(day[0], day[1])} type="checkbox" checked={day[0]}/>{day[2]}
+                    </div>)}
                     <button onClick={() => {
-                        setpopupuser(orderingaccount)
-                        setpopup(true)
-                    }} className="orderingaccounts">{orderingaccount.username}</button>
-                </div>)}
+                        let newdays = daystates.filter((value) => {
+                            return value[0]
+                        })
+                        handleaddnewpaper({papername: papername, paperprice: paperprice, days: newdays})
+                    }}>Confirm</button>
+                </div>}
+                {!shownewpaperdisplay && <button onClick={() => {
+                    setshownewpaperdisplay(true)
+                }}>Add Paper</button>}
             </div>
         </div>}
         {popup && <div className="parentcontainerforpopup">
@@ -114,6 +174,10 @@ const Home: FC = () => {
                     {popupuser.username}
                     {typeof popupuser.userconfirmed !== "undefined" && !popupuser.userconfirmed && <button onClick={() => {
                         handleallowaccount(popupuser.user_id)
+                        let popupuservar =  popupuser
+                        popupuservar.userconfirmed = true
+
+                        setpopupuser(popupuservar)
                     }}>
                         allow account
                     </button>}
