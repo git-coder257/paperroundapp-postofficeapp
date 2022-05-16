@@ -2,6 +2,40 @@ import { useState, useEffect, FC } from "react";
 import axios from 'axios'
 import "./home.css"
 
+interface deliveraccount {
+    user_id: number,
+    postoffice_id: number,
+    username: string,
+    password: string,
+    userconfirmed: boolean
+}
+
+interface ordereruser {
+    // id: number,
+    // postoffice_id: number,
+    username: string;
+    // password: string;
+    // locations: string;
+    // houselocationlong: number;
+    // houselocationlat: number
+}
+
+interface day {
+    day: string
+}
+
+interface orderedpaper {
+    paper_id: number;
+    postoffice_id: number;
+    ordereruser_id: number;
+    papername: string;
+    location: string;
+    houselocationlat: number;
+    houselocationlong: number;
+    cancelpaper: boolean;
+    days: day[]
+}
+
 const handlegetdeliveraccountsfromserver = async () => {
     let deliverusers = await (await axios.get(`https://dry-shore-19751.herokuapp.com/deliverusers/${localStorage.getItem("postofficename")}`)).data
     
@@ -19,20 +53,19 @@ const handlegetnewdeliveraccountsfromserver = async () => {
 }
 
 const handlegetorderingaccountsfromserver = async () => {
-    let ordererusers = await (await axios.get(`https://dry-shore-19751.herokuapp.com/ordererusers/${localStorage.getItem("postofficename")}`)).data
+    let ordererusers = await (await axios.get(`https://dry-shore-19751.herokuapp.com/ordererusers/${localStorage.getItem("postofficename")}`)).data.users
 
-    return [{username: "orson"}, {username: "orson2"}, {username: "orson3"}]
-
+    return ordererusers
 }
 
 const handleaddnewpaper = async (paperinfo: {papername: string, paperprice: number, days: any[]}) => {
     console.log(paperinfo)
 
     for (let i = 0; i < paperinfo.days.length; i++){
-        axios.post(`https://dry-shore-19751.herokuapp.com/${paperinfo.papername}/${paperinfo.days[i][2]}/${localStorage.getItem("postofficename")}`)
+        axios.post(`https://dry-shore-19751.herokuapp.com/adddayforpaper/${paperinfo.papername}/${paperinfo.days[i][2]}/${localStorage.getItem("postofficename")}`)
     }
 
-    await axios.post(`https://dry-shore-19751.herokuapp.com/${localStorage.getItem("postofficename")}/${paperinfo.papername}/${paperinfo.paperprice}`)
+    await axios.post(`https://dry-shore-19751.herokuapp.com/addpaperprice/${localStorage.getItem("postofficename")}/${paperinfo.papername}/${paperinfo.paperprice}`)
 }
 
 const handleallowaccount = async (userid: number) => {
@@ -41,22 +74,10 @@ const handleallowaccount = async (userid: number) => {
     return await success
 }
 
-interface deliveraccount {
-    user_id: number,
-    postoffice_id: number,
-    username: string,
-    password: string,
-    userconfirmed: boolean
-}
+const handlegetpapersforordereruser = async (username: string, password: string) => {
+    let papers = await (await axios.get(`https://dry-shore-19751.herokuapp.com/getallpapers/${username}/${password}`)).data.papers
 
-interface ordereruser {
-    // id: number,
-    // postoffice_id: number,
-    username: string;
-    // password: string;
-    // locations: string;
-    // houselocationlong: number;
-    // houselocationlat: number
+    return papers
 }
 
 const useGetDayStates: () => (any)[] = () => {
@@ -86,6 +107,7 @@ const Home: FC = () => {
     let [papername, setpapername] = useState("")
     let [paperprice, setpaperprice] = useState<number>(1)
     let daystates = useGetDayStates()
+    let [orderedpapers, setorderedpapers] = useState<orderedpaper[]>([])
 
     useEffect(() => {
 
@@ -101,6 +123,9 @@ const Home: FC = () => {
 
             setorderingaccounts(orderingaccountsvar)
 
+
+            // console.log(await handlegetpapersforordereruser("orson", "1234"))
+
             if (deliveraccountsvar.length > 20 || newdeliveraccountsvar.length > 20 || orderingaccountsvar.length > 20) setstylesforparentcontainer("displayflexparentcontainer")
             else if (deliveraccountsvar.length <= 20 && newdeliveraccountsvar.length <= 20 && orderingaccountsvar.length <= 20) {setstylesforparentcontainer("normalparentcontainer")}
         })()
@@ -111,6 +136,25 @@ const Home: FC = () => {
             setstate(!state)
         }
     }
+
+    useEffect(() => {
+
+        (async function () {
+
+            console.log(typeof popupuser.id === "number")
+
+            if (typeof popupuser.id === "number"){
+                setorderedpapers(await handlegetpapersforordereruser(popupuser.username, popupuser.password))
+
+                // console.log(await handlegetpapersforordereruser(popupuser.username, popupuser.password))
+
+                console.log("hello")
+            } else {
+                setorderedpapers([])
+            }
+        })()
+
+    }, [popup])
 
     return <>
         {!popup && <div className={stylesforparentcontainer}>
@@ -123,14 +167,14 @@ const Home: FC = () => {
                         }} className="deliveraccountsbtn">{deliveraccount.username}</button>
                     </div>)}
                 </div>
-                <div className="newdeliveraccountsparentcontainer">
+                {newdeliveraccounts.length > 0 && <div className="newdeliveraccountsparentcontainer">
                     {newdeliveraccounts.map((newdeliveraccount: deliveraccount, index: number) => <div key={index} className="newdeliveraccountschildcontainer">
                     <button onClick={() => {
                         setpopupuser(newdeliveraccount)
                         setpopup(true)
                     }} className="newdeliveraccounts">{newdeliveraccount.username}</button>
                     </div>)}
-                </div>
+                </div>}
                 <div className="orderingaccountsparentcontainer">
                     {orderingaccounts.map((orderingaccount: ordereruser, index: number) => <div key={index} className="orderingaccountschildcontainer">
                         <button onClick={() => {
@@ -171,16 +215,22 @@ const Home: FC = () => {
                     }}>back</button>
                 </div>
                 <div className="childcontainerforpopupinfo">
-                    {popupuser.username}
-                    {typeof popupuser.userconfirmed !== "undefined" && !popupuser.userconfirmed && <button onClick={() => {
-                        handleallowaccount(popupuser.user_id)
-                        let popupuservar =  popupuser
-                        popupuservar.userconfirmed = true
+                    <div className="containerforpopupinfo">
+                        {popupuser.username}
+                        {typeof popupuser.userconfirmed !== "undefined" && !popupuser.userconfirmed && <button onClick={() => {
+                            handleallowaccount(popupuser.user_id)
+                            let popupuservar =  popupuser
+                            popupuservar.userconfirmed = true
 
-                        setpopupuser(popupuservar)
-                    }}>
-                        allow account
-                    </button>}
+                            setpopupuser(popupuservar)
+                        }}>
+                            allow account
+                        </button>}                    
+                        {orderedpapers.map((orderedpaper: orderedpaper, index: number) => <div key={index}>
+                            {orderedpaper.papername}
+                        </div>)}
+
+                    </div>
                 </div>
             </div>
         </div>}
