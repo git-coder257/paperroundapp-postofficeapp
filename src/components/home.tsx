@@ -81,6 +81,12 @@ const handlegetpapersforordereruser = async (username: string, password: string)
     return papers
 }
 
+const handlegetallpaperstodeliver = async (userid: number) => {
+    let papers = await (await axios.get(`https://dry-shore-19751.herokuapp.com/getallpaperstodeliver/${userid}`)).data.papers
+
+    return papers
+}
+
 const useGetDayStates: () => (any)[] = () => {
     
     let [monday, setmonday] = useState<boolean>(false)
@@ -109,6 +115,7 @@ const Home: FC = () => {
     let [paperprice, setpaperprice] = useState<number>(1)
     let daystates = useGetDayStates()
     let [orderedpapers, setorderedpapers] = useState<orderedpaper[]>([])
+    let [paperstodeliver, setpaperstodeliver] = useState([])
 
     useEffect(() => {
 
@@ -147,12 +154,12 @@ const Home: FC = () => {
             if (typeof popupuser.id === "number"){
                 setorderedpapers(await handlegetpapersforordereruser(popupuser.username, popupuser.password))
 
-                // console.log(await handlegetpapersforordereruser(popupuser.username, popupuser.password))
-
                 console.log("hello")
             } else {
                 setorderedpapers([])
             }
+
+            // if (typeof)
         })()
 
     }, [popup])
@@ -238,7 +245,7 @@ const Home: FC = () => {
                                 </button>
                             </a>}
                         </div>)}
-
+                        {/* {or} */}
                     </div>
                 </div>
             </div>
