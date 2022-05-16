@@ -4,6 +4,7 @@ import Home from "./components/home"
 import Loginoptions from './components/loginoptions';
 import Login from './components/login';
 import Creataccount from './components/createaccount';
+import Deliveraccount from './components/deliveraccounts';
 
 function App() {
   return (<BrowserRouter>
@@ -11,6 +12,7 @@ function App() {
     <Route path="/home" component={Home}/>
     <Route path="/login" component={Login}/>
     <Route path="/createaccount" component={Creataccount}/>
+    <Route path="/selectdeliveraccount/:username/:papername" component={Deliveraccount}/>
   </BrowserRouter>);
 }
 

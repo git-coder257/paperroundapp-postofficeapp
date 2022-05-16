@@ -33,7 +33,8 @@ interface orderedpaper {
     houselocationlat: number;
     houselocationlong: number;
     cancelpaper: boolean;
-    days: day[]
+    days: day[],
+    deliver_id: number
 }
 
 const handlegetdeliveraccountsfromserver = async () => {
@@ -160,6 +161,7 @@ const Home: FC = () => {
         {!popup && <div className={stylesforparentcontainer}>
             <div className="parentcontainerforaccountsinfo">
                 <div className="deliveraccountsparentcontainer">
+                    <h2>delivering accounts</h2>
                     {deliveraccounts.map((deliveraccount: deliveraccount, index: number) => <div key={index} className="deliveraccountschildcontainer">
                         <button onClick={() => {
                             setpopupuser(deliveraccount)
@@ -168,6 +170,7 @@ const Home: FC = () => {
                     </div>)}
                 </div>
                 {newdeliveraccounts.length > 0 && <div className="newdeliveraccountsparentcontainer">
+                    <h2>new delivering acounts</h2>
                     {newdeliveraccounts.map((newdeliveraccount: deliveraccount, index: number) => <div key={index} className="newdeliveraccountschildcontainer">
                     <button onClick={() => {
                         setpopupuser(newdeliveraccount)
@@ -176,6 +179,7 @@ const Home: FC = () => {
                     </div>)}
                 </div>}
                 <div className="orderingaccountsparentcontainer">
+                    <h2>ordering accounts</h2>
                     {orderingaccounts.map((orderingaccount: ordereruser, index: number) => <div key={index} className="orderingaccountschildcontainer">
                         <button onClick={() => {
                             setpopupuser(orderingaccount)
@@ -228,6 +232,11 @@ const Home: FC = () => {
                         </button>}                    
                         {orderedpapers.map((orderedpaper: orderedpaper, index: number) => <div key={index}>
                             {orderedpaper.papername}
+                            {orderedpaper.deliver_id === 0 && <a href={`/selectdeliveraccount/${popupuser.username}/${orderedpaper.papername}`}>
+                                <button>
+                                    choose account to deliver
+                                </button>
+                            </a>}
                         </div>)}
 
                     </div>
