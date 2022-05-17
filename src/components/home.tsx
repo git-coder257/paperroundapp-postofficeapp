@@ -139,6 +139,7 @@ const Home: FC = () => {
             
             setdeliveraccounts(deliveraccountsvar)
 
+            console.log(newdeliveraccountsvar)
             setnewdeliveraccounts(newdeliveraccountsvar)
 
             setorderingaccounts(orderingaccountsvar)
