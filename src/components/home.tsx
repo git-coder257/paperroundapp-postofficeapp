@@ -13,9 +13,9 @@ interface deliveraccount {
 interface ordereruser {
     // id: number,
     // postoffice_id: number,
-    username: string;
-    // password: string;
-    // locations: string;
+    username: string,
+    // password: string,
+    // locations: string,
     // houselocationlong: number;
     // houselocationlat: number
 }
@@ -25,16 +25,28 @@ interface day {
 }
 
 interface orderedpaper {
-    paper_id: number;
-    postoffice_id: number;
-    ordereruser_id: number;
-    papername: string;
-    location: string;
-    houselocationlat: number;
-    houselocationlong: number;
-    cancelpaper: boolean;
+    paper_id: number,
+    postoffice_id: number,
+    ordereruser_id: number,
+    papername: string,
+    location: string,
+    houselocationlat: number,
+    houselocationlong: number,
+    cancelpaper: boolean,
     days: day[],
     deliver_id: number
+}
+
+interface paper {
+    cancelpaper: boolean,
+    deliver_id: number,
+    houselocationlong: number,
+    houselocationlat: number,
+    location: string,
+    ordereruser_id: number,
+    paper_id: number,
+    papername: string,
+    postoffice_id: number,
 }
 
 const handlegetdeliveraccountsfromserver = async () => {
@@ -115,7 +127,7 @@ const Home: FC = () => {
     let [paperprice, setpaperprice] = useState<number>(1)
     let daystates = useGetDayStates()
     let [orderedpapers, setorderedpapers] = useState<orderedpaper[]>([])
-    let [paperstodeliver, setpaperstodeliver] = useState([])
+    let [paperstodeliver, setpaperstodeliver] = useState<paper[]>([])
 
     useEffect(() => {
 
@@ -159,7 +171,19 @@ const Home: FC = () => {
                 setorderedpapers([])
             }
 
-            // if (typeof)
+            try {
+                if (popupuser.userconfirmed){
+                    console.log(await handlegetallpaperstodeliver(popupuser.user_id))
+
+                    setpaperstodeliver(await handlegetallpaperstodeliver(popupuser.user_id))
+                } else {
+                    setpaperstodeliver([])
+                }                
+            } catch (error) {
+                setpaperstodeliver([])
+            }
+
+
         })()
 
     }, [popup])
@@ -237,6 +261,7 @@ const Home: FC = () => {
                         }}>
                             allow account
                         </button>}                    
+                        <h4>papers: </h4>
                         {orderedpapers.map((orderedpaper: orderedpaper, index: number) => <div key={index}>
                             {orderedpaper.papername}
                             {orderedpaper.deliver_id === 0 && <a href={`/selectdeliveraccount/${popupuser.username}/${orderedpaper.papername}`}>
@@ -245,7 +270,9 @@ const Home: FC = () => {
                                 </button>
                             </a>}
                         </div>)}
-                        {/* {or} */}
+                        {paperstodeliver.map((paper: paper, index: number) => <div key={index}>
+                            {paper.papername}
+                        </div>)}
                     </div>
                 </div>
             </div>
